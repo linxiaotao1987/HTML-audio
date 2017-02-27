@@ -39,10 +39,16 @@ let audioAutoPlay = ()=> {
 通过用户的交互行为来触发audio的播放事件。
 虽然可以正常获取到，但并不是真正的进入页面就能读取。
 由于找不到其他方法实现，只能和产品沟通下。
+
 通过用户的touchstart事件执行audio.play()之后，会触发loadstart事件，这是时候给play按钮的状态加上loading的class。
 load的过程中如果读取到音频的长度会触发loadedmetadata事件，这时候audio.duration的值就是音频的长度，单位是秒。
+
 由于这里只需要获取到长度就可以，所以让audio暂停下来；
+
 接下来是依次监听事件，api网址：http://www.cnblogs.com/top5/archive/2012/02/22/2362486.html
+
 摘几个说一下：
+
 progress 当load到数据时触发，用来显示loading的进度。audio.buffered.end(0)是缓冲的时间长度。
+
 timeupdate 音频播放时间改变时触发，audio.currentTime返回当前的播放时间。由于在ios上需要load到相当长一段音频他才会开始播放，所以在timeupdate之前需要给用户loading提示。首先监听播放按钮的点击事件，点击之后加loading的class。然后执行audio.play()。然后监听timeupdate，事件触发之后再去掉loadingclass。
