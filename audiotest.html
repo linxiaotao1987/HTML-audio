@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>audio test</title>
+    <style type="text/css">
+    /*项目用到的颜色*/
+    /*主色辅色*/
+    /*警示色*/
+    /*按钮不可点击颜色*/
+    /*输入框的placeholder颜色*/
+    /*背景边框*/
+    /*文本颜色*/
+    .playerbox {
+        display: -webkit-box;
+        -webkit-box-align: center;
+    }
+
+    .course-review-mapbox {
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .course-review-pagesbox {
+        display: -webkit-box;
+        width: 10000%;
+        height: 100%;
+        -webkit-transition: -webkit-transform linear .2s;
+    }
+
+    .course-review-page-item {
+        padding-bottom: 15rem;
+        width: 75rem;
+        overflow-y: scroll;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .playerbox {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        padding: 0 14rem 0 3rem;
+        width: 100%;
+        background: #fff;
+        height: 13rem;
+        border-top: 1px solid #f0eff5;
+        box-sizing: border-box;
+        z-index: 9;
+    }
+
+    .playerbox > .audio {
+        position: absolute;
+        width: 0;
+        height: 0;
+        opacity: 0;
+    }
+
+    .playerbox > .time {
+        display: block;
+        width: 8rem;
+        font-size: 2.8rem;
+        color: #999999;
+    }
+
+    .playerbox > .progress {
+        position: relative;
+        margin: 0 2rem;
+        height: 1.2rem;
+        -webkit-box-flex: 1;
+    }
+
+    .playerbox > .progress > .total {
+        width: 100%;
+        background: #dcdcdc;
+        border-radius: 1rem;
+        z-index: 1;
+    }
+
+    .playerbox > .progress > .readed, .playerbox > .progress > .total, .playerbox > .progress > .buffer {
+        position: absolute;
+        top: 50%;
+        -webkit-transform: translate(0, -50%);
+        height: 1.2rem;
+    }
+
+    .playerbox > .progress > .buffer {
+        width: 0;
+        background: #aaaaaa;
+        border-radius: 1rem;
+        z-index: 2;
+    }
+
+    .playerbox > .progress > .readed {
+        width: 0;
+        border-radius: 1rem;
+        background: #33b06e;
+        z-index: 3;
+    }
+
+    .playerbox > .progress > .slider {
+        position: absolute;
+        top: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        width: 4rem;
+        height: 8rem;
+        border-radius: 50%;
+        z-index: 3;
+        box-sizing: border-box;
+    }
+
+    .playerbox > .progress > .slider:after {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        width: 1.8rem;
+        height: 1.8rem;
+        background: #2ea164;
+        border-radius: 50%;
+    }
+
+    .playerbox > .menu {
+        position: absolute;
+        right: 3rem;
+        top: 50%;
+        margin-top: -3.5rem;
+        border-radius: 50%;
+        width: 7rem;
+        height: 7rem;
+        border: 1px solid #2b9e61;
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACEAAAAlCAYAAADMdYB5AAACI0lEQVRYhc3YT4gOYRzA8c+uV5uIlIv2JJHsuEkpEU4OigPr4jBzUMplKaVcFJEihV2xZsLBtshakvxZ+XNwkwyJlIs4brSxIQ5jtL1l33fXvO/4Hp/n98zznfn9npl+09IRhzAHIVahFSl68VoN0jCuFVKTCqZjD3aOGV+HFTiC2/j8zzuNQyvWVgnkLMclnP4tNLWREmvGmW/BFgxiPzoaJbGkjrjZ2I3L6MLcoiWmTSB+EY7iIrairSiJH5NYtwrdOBck0coiJCbLDHSiL0iik0ESLSxDImcutuNWkERdQRLNKkOC7BTNw2HcDZJoY5BEdddLURI5FSxFv6xeltUjU7TEWJlO3MGBIInmlyGRMxO7MBgk0Y4gidrLkMhZjOO4ECTR5uoUNUsiZzVi9AZJ9Odz0dIRh49kH6hm8172dI5WStg8px378KbZ6aimDRvKloAF/4NE6ekYxUCZhZmfjutlSIxgAHEaxkNk7/hmch+ncC0N49F8sFkSL9GDq2kYv6+ebLTEJ5xBTxrGb/8W1CiJH7gia56ejX30zZD4jqc4hJtpGH+tZ1FREj/xDidkVT88kcVFSHyQHbljaRjXbKCLlhjBDXSnYfzwH66jgimTWPcAZ9Ffq+jqlfgygfhXsi69T5aGQqjgufE7cxj+vfl5vChq85xWDI0z/1N21+uxtxECucQ9WaddzRNswjY8xrdGCJClYwQH8dEk/lkVwS+tQIgu4RkBOAAAAABJRU5ErkJggg==) 60% 50% no-repeat;
+        background-size: 3.3rem 3.7rem;
+    }
+
+    .playerbox > .menu.play {
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABYAAAAlCAYAAABGWhk4AAAAmklEQVRIie3XOwrCQBSF4c+JWxEC2Y5IWjcSfOzDXl2QAZciARuLCF4cBLt7mmHO42faWXSnLWwwYIU7Drio08ftEmucZ8Vudv8GD7cFu2A0VLw23Ba0QRj5NZ22oAnCyK/pNKVi/JMSnOAEJzjBCU5wghP8F/AUZJFf05kKxiCM/JrOWLAPwmMFONwWXNHjhsfr7L1/ASKF2ycDLCEggZnB8wAAAABJRU5ErkJggg==) center center no-repeat;
+        background-size: 2.2rem 3.7rem;
+    }
+
+    .playerbox > .menu.loading {
+        -webkit-animation: loading 2s linear infinite;
+        background: none;
+    }
+
+    .playerbox > .menu.loading > .load {
+        display: block;
+    }
+
+    .playerbox > .menu > .load {
+        display: none;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        margin: -.7rem 0 0 -.15rem;
+        width: .3rem;
+        height: 1.4rem;
+        background: #999999;
+    }
+
+    .playerbox > .menu > .load:nth-child(1) {
+        -webkit-transform: translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(2) {
+        -webkit-transform: rotate(30deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(3) {
+        -webkit-transform: rotate(60deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(4) {
+        -webkit-transform: rotate(90deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(5) {
+        -webkit-transform: rotate(120deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(6) {
+        -webkit-transform: rotate(150deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(7) {
+        -webkit-transform: rotate(180deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(8) {
+        -webkit-transform: rotate(210deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(9) {
+        -webkit-transform: rotate(240deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(10) {
+        -webkit-transform: rotate(270deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(11) {
+        -webkit-transform: rotate(300deg) translate(0, -125%);
+    }
+
+    .playerbox > .menu > .load:nth-child(12) {
+        -webkit-transform: rotate(330deg) translate(0, -125%);
+    }
+
+    .course-review-item > .cover {
+        height: 65rem;
+        background-size: contain;
+        background-position: center center;
+        background-repeat: no-repeat;
+        background-color: #ececec;
+    }
+
+    .course-review-item > .mainphoto {
+        width: 100%;
+    }
+
+    .course-review-item > .name {
+        position: relative;
+        padding: 4.5rem 4.5rem 3rem 12rem;
+        font-size: 2.6rem;
+        font-weight: bold;
+    }
+
+    .course-review-item > .name > .headphoto {
+        position: absolute;
+        left: 4.5rem;
+        top: 50%;
+        width: 6rem;
+        height: 6rem;
+        -webkit-transform: translate(0, -40%);
+        border-radius: 50%;
+    }
+
+    .course-review-item > .name.hide {
+        display: none;
+    }
+
+    .course-review-item > .title {
+        padding: 0 4.5rem;
+        font-size: 2.6rem;
+        font-weight: bold;
+        text-align: justify;
+    }
+
+    .course-review-item > .title.hide {
+        display: none;
+    }
+
+    .course-review-item > .cont {
+        padding: 4rem 2.7rem;
+        font-size: 2.6rem;
+        color: #999999;
+        line-height: 1.6;
+        text-align: justify;
+    }
+
+    .course-review {
+        position: relative;
+        width: 75rem;
+        height: 100%;
+        overflow: hidden;
+    }
+
+    .course-review > .arrowleft, .course-review > .arrowright {
+        position: absolute;
+        top: 50%;
+        margin-top: -4.4rem;
+        width: 8.8rem;
+        height: 8.8rem;
+        z-index: 9;
+    }
+
+    .course-review > .arrowleft {
+        -webkit-transform: translate(-50%, 0);
+        background: url(data:image/png;base64,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) no-repeat;
+        background-size: 8.8rem auto;
+    }
+
+    .course-review > .arrowright {
+        right: 0;
+        -webkit-transform: translate(50%, 0);
+        background: url(data:image/png;base64,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) no-repeat;
+        background-size: 8.8rem auto;
+        background-position: right center;
+    }
+
+    .course-review > .menu {
+        position: absolute;
+        top: 6rem;
+        right: 0;
+        width: 11.6rem;
+        height: 4.8rem;
+        border-bottom-left-radius: 2.4rem;
+        border-top-left-radius: 2.4rem;
+        line-height: 4.8rem;
+        background-color: rgba(40, 50, 56, 0.7);
+        color: #fff;
+        text-align: center;
+        font-size: 2.6rem;
+        z-index: 19;
+    }
+
+    .course-review > .catalog {
+        position: absolute;
+        top: 0;
+        right: 0;
+        height: 100%;
+        width: 100%;
+        box-sizing: border-box;
+        z-index: 19;
+        -webkit-transform: translate(100%, 0);
+        -webkit-transition: -webkit-transform linear .2s;
+    }
+
+    .course-review > .catalog.show {
+        -webkit-transform: translate(0, 0);
+    }
+
+    .catalogbox {
+        position: fixed;
+        top: 0;
+        right: 0;
+        width: 80%;
+        height: 100%;
+        overflow-y: auto;
+        overflow-x: hidden;
+        -webkit-overflow-scrolling: touch;
+        background: rgba(40, 50, 56, 0.95);
+    }
+
+    .catalogbox > .title {
+        position: relative;
+        padding: 5rem 3rem;
+        font-size: 3.2rem;
+        line-height: 1;
+        color: #fff;
+    }
+
+    .catalogbox .close {
+        position: absolute;
+        right: 3rem;
+        top: 50%;
+        margin-top: -2.5rem;
+        width: 5rem;
+        height: 5rem;
+    }
+
+    .catalogbox .close:before, .catalogbox .close:after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        margin: -.1rem 0 0 -1.5rem;
+        width: 3rem;
+        height: .2rem;
+        background: #fff;
+    }
+
+    .catalogbox .close:before {
+        -webkit-transform: rotate(45deg);
+    }
+
+    .catalogbox .close:after {
+        -webkit-transform: rotate(-45deg);
+    }
+
+    .catalog-cont {
+        padding: 0 3rem 0 6rem;
+        font-size: 2.8rem;
+    }
+
+    .catalog-cont > .catalog-list {
+        position: relative;
+        padding: 2.4rem 0 2.4rem 14rem;
+        border-bottom: 1px solid #8e96a0;
+    }
+
+    .catalog-cont > .catalog-list > .pagination {
+        position: absolute;
+        left: 2rem;
+        color: #fff;
+    }
+
+    .catalog-cont > .catalog-list > .cont {
+        color: #a1abb1;
+    }
+
+    .catalog-cont > .catalog-list:before {
+        content: '';
+        position: absolute;
+        left: -3rem;
+        top: 3.8rem;
+        width: 1.2rem;
+        height: 1.2rem;
+        border-radius: 50%;
+        background: #a1abb1;
+    }
+
+    .catalog-cont > .catalog-list:after {
+        content: '';
+        position: absolute;
+        left: -2.4rem;
+        top: 5rem;
+        height: 100%;
+        width: 1px;
+        background: #a1abb1;
+    }
+
+    .catalog-cont > .catalog-list:last-child:after {
+        display: none;
+    }
+
+    .catalog-cont > .catalog-list * {
+        pointer-events: none;
+    }
+
+    @-webkit-keyframes loading {
+        0% {
+            -webkit-transform: rotate(0);
+        }
+        100% {
+            -webkit-transform: rotate(359deg);
+        }
+    }
+    </style>
+    <meta name="viewport" content="width=device-width,initial-scale=0.3333333333333333, maximum-scale=0.3333333333333333, minimum-scale=0.3333333333333333, user-scalable=no">
+</head>
+<body>
+<div class="playerbox">
+    <audio src="http://mecollegetest-10047736.file.myqcloud.com/ME_COLLEGE/video/20170208113041.mp3" id="js-audio"
+           class="audio" preload="auto" loop=""></audio>
+    <p class="time js-nowTime">00:00</p>
+    <div class="progress js-bar">
+        <div class="readed js-readed"></div>
+        <div class="buffer js-buffer" style="width: 12.361%;"></div>
+        <div class="slider js-slider" draggable="true"></div>
+        <div class="total js-musicbg"></div>
+    </div>
+    <p class="time js-timeAmount">10:56</p>
+    <div class="menu js-playbox-menu">
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+        <div class="load"></div>
+    </div>
+</div>
+
+<script>
+    initPlayer();
+    function initPlayer() {
+
+        let that = this;
+
+        if (!window.HTMLAudioElement) {
+            alert('你的设备不支持音频播放');
+            return false;
+        }
+
+        let bar = document.querySelector('.js-bar'),
+                audio = document.querySelector('#js-audio'),
+                bg = document.querySelector('.js-musicbg'),
+                readed = document.querySelector('.js-readed'),
+                buffer = document.querySelector('.js-buffer'),
+                slide = document.querySelector('.js-slider'),
+                nowTime = document.querySelector('.js-nowTime'),
+                timeAmount = document.querySelector('.js-timeAmount'),
+                btn = document.querySelector('.js-playbox-menu');
+
+
+        /*监听用户触摸行为，让音乐播放*/
+        function audioAutoPlay(){
+            var play = function () {
+                audio.play();
+                audio.pause();
+                document.removeEventListener("touchstart", play, false);
+            };
+
+            document.addEventListener("touchstart", play, false);
+        };
+        audioAutoPlay();
+        /*end*/
+        function audioLoadstart(evevt){
+            console.log(event.type);
+            btn.classList.add('loading');
+        }
+
+        function musicPlay(event) {
+            console.log(event.type);
+            audio.play();
+            btn.classList.add('play');
+        };
+
+        function initMusicTime(event){
+            console.log(event.type);
+            timeAmount.innerHTML = toTime(audio.duration);
+            nowTime.innerHTML = '00:00';
+            btn.classList.remove('loading');
+        };
+
+        function setProgress (event){
+            console.log(event.type);
+            if (!audio.buffered.length) {
+                return false;
+            }
+            var loadPercent = audio.buffered.end(0) / audio.duration;
+            buffer.style.width = loadPercent * 100 + '%';
+        };
+
+        function playingClass (){
+            btn.classList.remove('loading');
+            btn.classList.add('play');
+        }
+
+        function setCurrentTime (event){
+            console.log(event.type);
+            let duration = audio.duration,
+                    currentTime = audio.currentTime,
+                    percent = '0%',
+                    that = this;
+
+            playingClass();
+
+
+            if (isFinite(duration) && duration > 0 && currentTime) {
+                percent = (currentTime / duration * 100) + '%';
+                readed.style.width = percent;
+                slide.style.left = percent;
+                nowTime.innerHTML = toTime(currentTime);
+                timeAmount.innerHTML = toTime(duration);
+            }
+        };
+
+        function setDragCurrentTime (offset) {
+            let duration = audio.duration,
+                    barWidth = bg.clientWidth,
+                    percent = offset / barWidth,
+                    resultTime = 0;
+
+            if (isFinite(duration) && duration > 0) {
+                resultTime = slide.oldCurrentTime + duration * percent;
+                if (resultTime < 0) {
+                    resultTime = 0;
+                }
+                if (resultTime > duration) {
+                    resultTime = duration;
+                }
+                audio.currentTime = resultTime;
+                setCurrentTime();
+            }
+        };
+
+        function musicShow (event) {
+            console.log(event.type);
+            if (audio.paused) {
+                btn.classList.add('loading');
+                audio.play();
+            } else {
+                audio.pause();
+                btn.classList.remove('play');
+            }
+        };
+
+        function slideTouchStart (event) {
+            event.preventDefault();
+            slide.startX = event.targetTouches[0].clientX;
+            slide.oldCurrentTime = audio.currentTime;
+        };
+
+        function slideTouchMove(event){
+            event.preventDefault();
+            slide.endX = event.targetTouches[0].clientX;
+            slide.offset = slide.endX - slide.startX;
+            setDragCurrentTime(slide.offset);
+        };
+
+        function moveToClickPosition(event){
+            let barOffsetLeft = bar.offsetLeft,
+                    clickClientX = event.clientX,
+                    barWidth = bar.offsetWidth,
+                    offset = clickClientX - barOffsetLeft,
+                    percent = offset / barWidth;
+
+            audio.currentTime = percent * audio.duration;
+            setCurrentTime();
+            setTimeout(musicPlay, 100);
+        }
+
+        //客户端开始请求数据
+        audio.addEventListener('loadstart', audioLoadstart);
+
+        //音频元数据已加载
+        audio.addEventListener('loadedmetadata', initMusicTime);
+
+
+        audio.addEventListener('pause', function (event){
+            console.log(event.type);
+            btn.classList.remove('loading');
+            btn.classList.remove('play');
+        });
+
+        //监听缓冲进度，更新缓冲进度条
+        audio.addEventListener('progress', setProgress);
+
+        //监听当前播放时间，更新进度条
+        audio.addEventListener('timeupdate', setCurrentTime);
+
+        //监听播放按钮的点击时间
+        btn.addEventListener('click', musicShow);
+
+        //按钮的拖拽处理
+        slide.addEventListener('touchstart', slideTouchStart);
+        slide.addEventListener('touchmove', slideTouchMove);
+        slide.addEventListener('touchend', musicPlay);
+
+        //播放进度条点击切换到相应播放位置
+        bar.addEventListener('click', moveToClickPosition);
+    }
+
+    function toTime(time) {
+        let minute = '', second = '';
+        if (!time) {
+            return;
+        }
+        minute = parseInt(time / 60);
+        second = parseInt(time % 60);
+        if (minute <= 9) {
+            minute = '0' + minute;
+        }
+        if (second <= 9) {
+            second = '0' + second;
+        }
+        return minute + ':' + second;
+    }
+</script>
+</body>
+</html>
